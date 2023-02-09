@@ -4,7 +4,7 @@
   "description": "A MagicMirror module to display local news.",
   "main": "MMM-LocalNews.js",
   "dependencies": {
-    "youtube-api-v3-search": "^0.3.0"
+    "youtube-api-v3-search": "^1.2.1"
   },
   "scripts": {
     "start": "node node_helper.js"
