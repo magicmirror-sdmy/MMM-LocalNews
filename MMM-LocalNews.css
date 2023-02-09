@@ -1,0 +1,25 @@
+.local-news-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.local-news-item {
+    width: 80%;
+    background-color: #f2f2f2;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.local-news-title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.local-news-date {
+    font-size: 16px;
+    color: #333;
+}
+
