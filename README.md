@@ -13,7 +13,13 @@ run npm install in the MMM-LocalNews directory.
 ```
 Add you config in the config.js
 ``` 
-    git clone https://github.com/sdmydbr9/MMM-LocalNews.git
-    cd MMM-LocalNews
-    npm install
+    {
+    module: "MMM-LocalNews",
+    position: "top_left",
+    config: {
+        channelId: "UCsT0YIqwnpJCM-mx7-gSA4Q", // Replace this with your YouTube channel ID
+        apiKey: "YOUR_API_KEY", // Replace this with your YouTube API key
+        updateInterval: 5 * 60 * 1000 // Every 5 minutes
+    }
+}
 ```
