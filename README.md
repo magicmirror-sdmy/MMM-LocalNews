@@ -3,7 +3,9 @@ Magicmirror module to extract the data from YouTube titles and display it as new
 This project was created using chatgpt giving it precise directions. 
 It uses youtube api to extract video titles from youtube channel and display it as news feed. 
 This module does not work yet and needs changes. 
-Git clone this repository in your modules folder and add the following lines in your config
+Git clone this repository in your modules folder.
+run npm install in the MMM-LocalNews directory.
+add the following lines in your config
 ```
 {
     module: "MMM-LocalNews",
