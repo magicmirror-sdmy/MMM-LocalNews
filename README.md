@@ -23,3 +23,5 @@ Add you config in the config.js
     }
 }
 ```
+
+Replace your api key with a valid api key obtained from google developer console and replace the YouTube channel id 
