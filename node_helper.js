@@ -13,6 +13,7 @@ module.exports = NodeHelper.create({
     if (notification === "GET_VIDEO_TITLES") {
       var apiKey = payload.apiKey;
       var channelId = payload.channelId;
+      var debug = payload.debug;
 
       var url = "https://www.googleapis.com/youtube/v3/search?key=" + apiKey + "&channelId=" + channelId + "&part=snippet,id&order=date&maxResults=10";
 
@@ -31,12 +32,9 @@ module.exports = NodeHelper.create({
             titles.push(response.items[i].snippet.title);
           }
 
+          if (debug) {
+            console.log("Video Titles:", titles);
+          }
+
           // Send the video titles back to the module.
-          this.sendSocketNotification("VIDEO_TITLES", { titles: titles });
-        }.bind(this));
-      }.bind(this)).on("error", function(error) {
-        console.log("Error: " + error.message);
-      });
-    }
-  }
-});
+          this.sendSocketNotification("VIDEO_TITLES
