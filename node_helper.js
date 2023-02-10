@@ -22,6 +22,10 @@ module.exports = NodeHelper.create({
   getData: function() {
     var self = this;
 
+    if (!self.channelIds) {
+      return;
+    }
+
     this.channelIds.forEach(function(channelId) {
       var url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=50&order=date&type=video&key=${self.apiKey}`;
 
