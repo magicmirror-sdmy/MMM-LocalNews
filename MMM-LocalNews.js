@@ -2,15 +2,21 @@ Module.register("MMM-LocalNews", {
   // Default module config.
   defaults: {
     apiKey: "",
-    channelId: [],
+    channelIds: [], // array of channel ids
     displayTime: 5000, // Default display time is 5 seconds
+    updateInterval: 10 * 60 * 1000, // Default update interval is 10 minutes
     debug: false // Default value for debug is false
   },
 
   // Override start method.
   start: function() {
-    this.currentTitle = "";
     this.sendSocketNotification("GET_VIDEO_TITLES", this.config);
+
+    // set an interval to update the video titles
+    var self = this;
+    setInterval(function() {
+      self.sendSocketNotification("GET_VIDEO_TITLES", self.config);
+    }, this.config.updateInterval);
   },
 
   // Handle the VIDEO_TITLES socket notification.
