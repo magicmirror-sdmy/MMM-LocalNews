@@ -14,18 +14,18 @@ run npm install in the MMM-LocalNews directory.
 Add you config in the config.js
 ``` 
     {
-   module: "MMM-LocalNews",
-  config: {
-  apiKey: "YOUR_API_KEY",
-  urls: [
-    "https://www.youtube.com/channel/UC8butISFwT-Wl7EV0hUK0BQ",
-    "https://www.youtube.com/channel/UCQG5SdM5j5x5Ln1lOf2QQFg"
-  ],
-  hours: 24,
-  displayTime: 5000,
-  debug: false
-}
-},
+  module: "MMM-LocalNews",
+   config: {
+    apiKey: "YOUR_API_KEY",
+    urls: [
+        "https://www.youtube.com/channel/UC8butISFwT-Wl7EV0hUK0BQ",
+        "https://www.youtube.com/channel/UCQG5SdM5j5x5Ln1lOf2QQFg"
+          ],
+    hours: 24,
+    displayTime: 5000,
+    debug: false
+              }
+    },
 
 ```
 
