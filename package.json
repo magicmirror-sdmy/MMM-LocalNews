@@ -4,6 +4,7 @@
   "description": "A MagicMirrorB2 module for displaying local news",
   "author": "sdmy",
   "dependencies": {
+    "node-memwatch": "^0.2.0",
     "node-helper": "0.1.1"
   }
 }
