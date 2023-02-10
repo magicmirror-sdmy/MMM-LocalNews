@@ -1,3 +1,4 @@
+var NodeHelper = require("node_helper");
 var https = require("https");
 
 module.exports = NodeHelper.create({
@@ -10,8 +11,8 @@ module.exports = NodeHelper.create({
   // Handle the GET_VIDEO_TITLES socket notification.
   socketNotificationReceived: function(notification, payload) {
     if (notification === "GET_VIDEO_TITLES") {
-      var apiKey = this.config.apiKey;
-      var channelId = this.config.channelId;
+      var apiKey = payload.apiKey;
+      var channelId = payload.channelId;
 
       var url = "https://www.googleapis.com/youtube/v3/search?key=" + apiKey + "&channelId=" + channelId + "&part=snippet,id&order=date&maxResults=10";
 
