@@ -6,7 +6,8 @@ Module.register("MMM-LocalNews", {
     channelIds: [], // array of channel ids
     displayTime: 5000, // Default display time is 5 seconds
     updateInterval: 10 * 60 * 1000, // Default update interval is 10 minutes
-    debug: false // Default value for debug is false
+    debug: false, // Default value for debug is false
+    excludedTitles: [] // array of keywords to exclude
   },
 
   // Override start method.
@@ -24,7 +25,8 @@ Module.register("MMM-LocalNews", {
     if (notification === "VIDEO_TITLES") {
       clearInterval(this.intervalId);
 
-      this.titles = payload.titles;
+      // Filter out titles containing keywords in `excludedTitles`
+      this.titles = payload.titles.filter(title => !this.config.excludedTitles.some(excluded => title.includes(excluded)));
       this.updateDom();
 
       this.showNextTitle();
