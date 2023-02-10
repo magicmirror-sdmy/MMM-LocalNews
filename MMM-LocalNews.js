@@ -1,3 +1,5 @@
+Module.register("MMM-LocalNews", {
+  // Default module config.
   defaults: {
     apiKey: "",
     channelId: "",
