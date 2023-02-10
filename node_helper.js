@@ -16,6 +16,7 @@ module.exports = NodeHelper.create({
       var debug = payload.debug;
 
       var url = "https://www.googleapis.com/youtube/v3/search?key=" + apiKey + "&channelId=" + channelId + "&part=snippet,id&order=date&maxResults=10";
+      var self = this; // store a reference to the node helper
 
       https.get(url, function(res) {
         var body = "";
@@ -38,5 +39,9 @@ module.exports = NodeHelper.create({
           }
 
           // Send the video titles back to the module.
-          this.sendSocketNotification("VIDEO_TITLES", { titles: titles });
-        }.bind(this));
+          self.sendSocketNotification("VIDEO_TITLES", { titles: titles });
+        });
+      });
+    }
+  }
+});
