@@ -15,7 +15,7 @@ module.exports = NodeHelper.create({
       var channelId = payload.channelId;
       var debug = payload.debug;
 
-      var url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={channelId}&maxResults=50&order=date&type=video&key={apiKey}';
+      var url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=50&order=date&type=video&key=${apiKey}`;
       var self = this; // store a reference to the node helper
 
       https.get(url, function(res) {
