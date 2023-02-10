@@ -1,6 +1,5 @@
 var NodeHelper = require("node_helper");
 var https = require("https");
-var heapdump = require('heapdump');
 
 module.exports = NodeHelper.create({
   // Override start method.
@@ -64,3 +63,4 @@ module.exports = NodeHelper.create({
     }, this.updateInterval);
   }
 });
+  
