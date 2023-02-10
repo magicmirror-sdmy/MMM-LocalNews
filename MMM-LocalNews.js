@@ -15,12 +15,6 @@ Module.register("MMM-LocalNews", {
   // Handle the VIDEO_TITLES socket notification.
   socketNotificationReceived: function(notification, payload) {
     if (notification === "VIDEO_TITLES") {
-      if (!payload.titles) {
-        this.currentTitle = "No video titles found";
-        this.updateDom();
-        return;
-      }
-
       this.titles = payload.titles;
       this.updateDom();
 
