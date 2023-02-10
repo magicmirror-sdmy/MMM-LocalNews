@@ -15,6 +15,10 @@ module.exports = NodeHelper.create({
       var channelId = payload.channelId;
       var debug = payload.debug;
 
+      if (!apiKey || !channelId) {
+        return console.error("apiKey and channelId must be provided");
+      }
+
       var url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=50&order=date&type=video&key=${apiKey}`;
       var self = this; // store a reference to the node helper
 
@@ -27,6 +31,11 @@ module.exports = NodeHelper.create({
 
         res.on("end", function() {
           var response = JSON.parse(body);
+
+          if (!response || !response.items) {
+            return console.error("Could not get video titles. Invalid response from YouTube API");
+          }
+
           var titles = [];
 
           for (var i = 0; i < response.items.length; i++) {
