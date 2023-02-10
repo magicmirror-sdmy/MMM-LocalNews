@@ -1,10 +1,13 @@
 {
     module: "MMM-LocalNews",
-    position: "top_left",
+    position: "middle_center",
+    header: "YouTube Channels",
     config: {
-        channelId: "UCsT0YIqwnpJCM-mx7-gSA4Q", // Replace this with your YouTube channel ID
-        apiKey: "YOUR_API_KEY", // Replace this with your YouTube API key
-        updateInterval: 5 * 60 * 1000 // Every 5 minutes
+        apiKey: "YOUR_API_KEY",
+        channelIds: [
+            "UCwYDCNWqN2S5QQaPPvCgMVg",
+            "UCPR8eYB82c1mfeZzb0EW8Dg",
+            "UCyU0vVL9LwypgtDRcNwFdWg"
+        ]
     }
-}
-
+},
