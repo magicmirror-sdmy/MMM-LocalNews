@@ -7,6 +7,7 @@ module.exports = NodeHelper.create({
   channelIds: null,
   updateInterval: null,
   debug: false,
+  intervalId: null,
 
   // Override start method.
   start: function() {
@@ -17,6 +18,7 @@ module.exports = NodeHelper.create({
   // Handle the GET_VIDEO_TITLES socket notification.
   socketNotificationReceived: function(notification, payload) {
     if (notification === "GET_VIDEO_TITLES") {
+      clearInterval(this.intervalId);
       this.apiKey = payload.apiKey;
       this.channelIds = payload.channelIds;
       this.updateInterval = payload.updateInterval;
@@ -65,7 +67,7 @@ module.exports = NodeHelper.create({
     });
 
     // Set a timeout to fetch the data again after the update interval has passed.
-    setTimeout(function() {
+    this.intervalId = setTimeout(function() {
       self.getData();
     }, this.updateInterval);
   }
