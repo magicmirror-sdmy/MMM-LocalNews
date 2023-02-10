@@ -1,10 +1,8 @@
 {
   "name": "MMM-LocalNews",
-  "version": "0.0.1",
-  "description": "A MagicMirrorB2 module for displaying local news",
-  "author": "sdmy",
+  "version": "1.0.0",
   "dependencies": {
-    "node-helper": "0.1.1"
+    "memory-cache": "^4.1.0",
+    "node_helper": "^2.0.0"
   }
 }
-
