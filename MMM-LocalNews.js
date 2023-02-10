@@ -1,11 +1,12 @@
-const moment = window.moment;
-
 Module.register("MMM-LocalNews", {
   // Default module config.
   defaults: {
     apiKey: "",
     channelId: ""
   },
+
+  // Member variable to store the video titles.
+  html: "",
 
   // Override start method.
   start: function() {
@@ -17,11 +18,11 @@ Module.register("MMM-LocalNews", {
     if (notification === "VIDEO_TITLES") {
       var titles = payload.titles;
 
-      var html = "<ul>";
+      this.html = "<ul>";
       for (var i = 0; i < titles.length; i++) {
-        html += "<li>" + titles[i] + "</li>";
+        this.html += "<li>" + titles[i] + "</li>";
       }
-      html += "</ul>";
+      this.html += "</ul>";
 
       this.updateDom();
     }
@@ -30,7 +31,7 @@ Module.register("MMM-LocalNews", {
   // Override dom generator.
   getDom: function() {
     var wrapper = document.createElement("div");
-    wrapper.innerHTML = html;
+    wrapper.innerHTML = this.html;
     return wrapper;
   }
 });
