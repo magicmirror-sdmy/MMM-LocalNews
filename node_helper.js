@@ -12,37 +12,39 @@ module.exports = NodeHelper.create({
   socketNotificationReceived: function(notification, payload) {
     if (notification === "GET_VIDEO_TITLES") {
       var apiKey = payload.apiKey;
-      var channelId = payload.channelId;
+      var channelIds = payload.channelId;
       var debug = payload.debug;
 
-      var url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=50&order=date&type=video&key=${apiKey}`;
       var self = this; // store a reference to the node helper
+      var titles = [];
 
-      https.get(url, function(res) {
-        var body = "";
+      channelIds.forEach(function(channelId) {
+        var url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=50&order=date&type=video&key=${apiKey}`;
 
-        res.on("data", function(chunk) {
-          body += chunk;
-        });
+        https.get(url, function(res) {
+          var body = "";
 
-        res.on("end", function() {
-          var response = JSON.parse(body);
-          var titles = [];
+          res.on("data", function(chunk) {
+            body += chunk;
+          });
 
-          for (var i = 0; i < response.items.length; i++) {
-            titles.push(response.items[i].snippet.title);
-          }
+          res.on("end", function() {
+            var response = JSON.parse(body);
 
-          // Log the titles to the console if debug is enabled.
-          if (debug) {
-            console.log("Titles: " + titles);
-          }
+            for (var i = 0; i < response.items.length; i++) {
+              titles.push(response.items[i].snippet.title);
+            }
 
-          // Send the video titles back to the module.
-          self.sendSocketNotification("VIDEO_TITLES", { titles: titles });
+            // Log the titles to the console if debug is enabled.
+            if (debug) {
+              console.log("Titles: " + titles);
+            }
+
+            // Send the video titles back to the module.
+            self.sendSocketNotification("VIDEO_TITLES", { titles: titles });
+          });
         });
       });
     }
   }
-  });
-  
+});
