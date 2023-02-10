@@ -1,37 +1,42 @@
-const moment = window.moment;
-
 Module.register("MMM-LocalNews", {
   // Default module config.
   defaults: {
     apiKey: "",
     channelId: "",
-    refreshInterval: 5 * 1000
+    displayTime: 5000 // Default display time is 5 seconds
   },
 
   // Override start method.
   start: function() {
     this.sendSocketNotification("GET_VIDEO_TITLES", this.config);
-
-    // Refresh the titles every refreshInterval milliseconds.
-    setInterval(() => {
-      this.sendSocketNotification("GET_VIDEO_TITLES", this.config);
-    }, this.config.refreshInterval);
   },
 
   // Handle the VIDEO_TITLES socket notification.
   socketNotificationReceived: function(notification, payload) {
     if (notification === "VIDEO_TITLES") {
       this.titles = payload.titles;
-      this.titleIndex = 0;
       this.updateDom();
+
+      this.showNextTitle();
     }
   },
 
   // Override dom generator.
   getDom: function() {
     var wrapper = document.createElement("div");
-    wrapper.innerHTML = this.titles[this.titleIndex];
-    this.titleIndex = (this.titleIndex + 1) % this.titles.length;
+    wrapper.innerHTML = this.currentTitle || "Loading...";
     return wrapper;
+  },
+
+  // Show the next title in the list.
+  showNextTitle: function() {
+    if (this.titles.length === 0) {
+      return;
+    }
+
+    this.currentTitle = this.titles.shift();
+    this.updateDom();
+
+    setTimeout(this.showNextTitle.bind(this), this.config.displayTime);
   }
 });
