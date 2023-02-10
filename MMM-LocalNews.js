@@ -1,4 +1,5 @@
 Module.register("MMM-LocalNews", {
+  css: [    "MMM-LocalNews.css"  ],
   // Default module config.
   defaults: {
     apiKey: "",
