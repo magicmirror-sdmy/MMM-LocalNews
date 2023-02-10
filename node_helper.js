@@ -1,10 +1,14 @@
 var NodeHelper = require("node_helper");
 var https = require("https");
+var memwatch = require('node-memwatch');
 
 module.exports = NodeHelper.create({
   // Override start method.
   start: function() {
     console.log("Starting node helper for: " + this.name);
+    memwatch.on('leak', function(info) {
+      console.error('Memory leak detected: ', info);
+    });
     this.getData();
   },
 
