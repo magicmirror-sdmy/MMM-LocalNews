@@ -3,7 +3,8 @@ Module.register("MMM-LocalNews", {
   defaults: {
     apiKey: "",
     channelId: "",
-    displayTime: 5000 // Default display time is 5 seconds
+    displayTime: 5000, // Default display time is 5 seconds
+    debug: false
   },
 
   // Override start method.
@@ -16,6 +17,10 @@ Module.register("MMM-LocalNews", {
     if (notification === "VIDEO_TITLES") {
       this.titles = payload.titles;
       this.updateDom();
+
+      if (this.config.debug) {
+        console.log("Video Titles:", this.titles);
+      }
 
       this.showNextTitle();
     }
