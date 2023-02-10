@@ -1,30 +1,43 @@
 var https = require("https");
 
-// Replace YOUR_API_KEY with your actual API key.
-var apiKey = "YOUR_API_KEY";
-var channelId = "UC_CHANNEL_ID";
+module.exports = NodeHelper.create({
 
-// Build the API request URL.
-var url = "https://www.googleapis.com/youtube/v3/search?key=" + apiKey + "&channelId=" + channelId + "&part=snippet,id&order=date&maxResults=10";
+  // Override start method.
+  start: function() {
+    console.log("Starting node helper for: " + this.name);
+  },
 
-https.get(url, function(res) {
-    var body = "";
+  // Handle the GET_VIDEO_TITLES socket notification.
+  socketNotificationReceived: function(notification, payload) {
+    if (notification === "GET_VIDEO_TITLES") {
+      var apiKey = payload.apiKey;
+      var channelId = payload.channelId;
 
-    res.on("data", function(chunk) {
-        body += chunk;
-    });
+      var url = "https://www.googleapis.com/youtube/v3/search?key=" + apiKey + "&channelId=" + channelId + "&part=snippet,id&order=date&maxResults=10";
 
-    res.on("end", function() {
-        var response = JSON.parse(body);
-        var titles = [];
+      https.get(url, function(res) {
+        var body = "";
 
-        for (var i = 0; i < response.items.length; i++) {
+        res.on("data", function(chunk) {
+          body += chunk;
+        });
+
+        res.on("end", function() {
+          var response = JSON.parse(body);
+          var titles = [];
+
+          for (var i = 0; i < response.items.length; i++) {
             titles.push(response.items[i].snippet.title);
-        }
+          }
 
-        console.log(titles);
-    });
-}).on("error", function(error) {
-    console.log("Error: " + error.message);
+          // Send the video titles back to the module.
+          this.sendSocketNotification("VIDEO_TITLES", { titles: titles });
+        }.bind(this));
+      }.bind(this)).on("error", function(error) {
+        console.log("Error: " + error.message);
+      });
+    }
+  }
 });
+
 
