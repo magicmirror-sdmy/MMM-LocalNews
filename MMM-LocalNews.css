@@ -1,10 +1,10 @@
-.local-news-wrapper {
+.MMM-LocalNews-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.local-news-item {
+.MMM-Localnews-item {
     width: 80%;
     background-color: #f2f2f2;
     padding: 20px;
