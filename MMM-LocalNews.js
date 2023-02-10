@@ -2,7 +2,7 @@ Module.register("MMM-LocalNews", {
   // Default module config.
   defaults: {
     apiKey: "",
-    channelId: "",
+    channelId: [],
     displayTime: 5000, // Default display time is 5 seconds
     debug: false // Default value for debug is false
   },
