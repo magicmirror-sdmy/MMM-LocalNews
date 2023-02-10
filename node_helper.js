@@ -39,7 +39,7 @@ module.exports = NodeHelper.create({
             }
           });
         });
-      });
+      }.bind(this));
 
       setTimeout(function() {
         // Log the titles to the console if debug is enabled.
