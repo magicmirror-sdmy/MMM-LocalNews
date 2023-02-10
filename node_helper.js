@@ -22,7 +22,7 @@ module.exports = NodeHelper.create({
         var channelId = url.substring(url.lastIndexOf("/") + 1);
         var publishedAfter = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
         var url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&publishedAfter=${publishedAfter}&maxResults=50&order=date&type=video&key=${apiKey}`;
-        var self = this; // store a reference to the node helper
+        var nodeHelper = this; // store a reference to the node helper
 
         https.get(url, function(res) {
           var body = "";
@@ -48,7 +48,7 @@ module.exports = NodeHelper.create({
         }
   
         // Send the video titles back to the module.
-        self.sendSocketNotification("VIDEO_TITLES", { titles: titles });
+        nodeHelper.sendSocketNotification("VIDEO_TITLES", { titles: titles });
       }, 2000);
     }
   }
