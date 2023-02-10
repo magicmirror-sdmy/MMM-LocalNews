@@ -13,9 +13,8 @@ Module.register("MMM-LocalNews", {
   start: function() {
     this.sendSocketNotification("GET_VIDEO_TITLES", this.config);
 
-    // set an interval to update the video titles
     var self = this;
-    setInterval(function() {
+    this.intervalId = setInterval(function() {
       self.sendSocketNotification("GET_VIDEO_TITLES", self.config);
     }, this.config.updateInterval);
   },
@@ -23,6 +22,8 @@ Module.register("MMM-LocalNews", {
   // Handle the VIDEO_TITLES socket notification.
   socketNotificationReceived: function(notification, payload) {
     if (notification === "VIDEO_TITLES") {
+      clearInterval(this.intervalId);
+
       this.titles = payload.titles;
       this.updateDom();
 
