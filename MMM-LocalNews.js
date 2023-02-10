@@ -30,6 +30,8 @@ Module.register("MMM-LocalNews", {
         // Set locale.
         moment.locale(config.language);
 
+        this.config = Object.assign({}, this.defaults, config);
+
         this.videoTitles = [];
         this.scheduleUpdate();
     },
@@ -84,4 +86,3 @@ Module.register("MMM-LocalNews", {
         }
     }
 });
-
