@@ -2,6 +2,12 @@ var NodeHelper = require("node_helper");
 var https = require("https");
 
 module.exports = NodeHelper.create({
+  // Store the API key and channel IDs in local variables for faster access.
+  apiKey: null,
+  channelIds: null,
+  updateInterval: null,
+  debug: false,
+
   // Override start method.
   start: function() {
     console.log("Starting node helper for: " + this.name);
@@ -19,13 +25,13 @@ module.exports = NodeHelper.create({
     }
   },
 
+  // Fetch the video titles and send them back to the module.
   getData: function() {
-    var self = this;
-
-    if (!self.channelIds) {
+    if (!this.channelIds) {
       return;
     }
 
+    var self = this;
     this.channelIds.forEach(function(channelId) {
       var url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=50&order=date&type=video&key=${self.apiKey}`;
 
@@ -58,9 +64,9 @@ module.exports = NodeHelper.create({
       });
     });
 
+    // Set a timeout to fetch the data again after the update interval has passed.
     setTimeout(function() {
       self.getData();
     }, this.updateInterval);
   }
 });
-  
