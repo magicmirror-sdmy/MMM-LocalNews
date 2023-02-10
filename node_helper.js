@@ -48,7 +48,7 @@ module.exports = NodeHelper.create({
         }
   
         // Send the video titles back to the module.
-        self.sendSocketNotification("VIDEO_TITLES", { titles: titles });
+        nodeHelper.sendSocketNotification("VIDEO_TITLES", { titles: titles });
       }, 2000);
     }
   }
