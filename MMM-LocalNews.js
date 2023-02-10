@@ -26,7 +26,7 @@ Module.register("MMM-LocalNews", {
       clearInterval(this.intervalId);
 
       // Filter out titles containing keywords in `excludedTitles`
-      this.titles = payload.titles.filter(title => !this.config.excludedTitles.some(excluded => title.includes(excluded)));
+      this.titles = payload.titles.filter(title => !this.config.excludedTitles.some(excluded => title.toLowerCase().includes(excluded.toLowerCase())));
       this.updateDom();
 
       this.showNextTitle();
