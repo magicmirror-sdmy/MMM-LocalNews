@@ -1,29 +1,28 @@
+const moment = window.moment;
+
 Module.register("MMM-LocalNews", {
   // Default module config.
   defaults: {
     apiKey: "",
-    channelId: ""
+    channelId: "",
+    refreshInterval: 5 * 1000
   },
-
-  // Member variable to store the video titles.
-  html: "",
 
   // Override start method.
   start: function() {
     this.sendSocketNotification("GET_VIDEO_TITLES", this.config);
+
+    // Refresh the titles every refreshInterval milliseconds.
+    setInterval(() => {
+      this.sendSocketNotification("GET_VIDEO_TITLES", this.config);
+    }, this.config.refreshInterval);
   },
 
   // Handle the VIDEO_TITLES socket notification.
   socketNotificationReceived: function(notification, payload) {
     if (notification === "VIDEO_TITLES") {
-      var titles = payload.titles;
-
-      this.html = "<ul>";
-      for (var i = 0; i < titles.length; i++) {
-        this.html += "<li>" + titles[i] + "</li>";
-      }
-      this.html += "</ul>";
-
+      this.titles = payload.titles;
+      this.titleIndex = 0;
       this.updateDom();
     }
   },
@@ -31,7 +30,8 @@ Module.register("MMM-LocalNews", {
   // Override dom generator.
   getDom: function() {
     var wrapper = document.createElement("div");
-    wrapper.innerHTML = this.html;
+    wrapper.innerHTML = this.titles[this.titleIndex];
+    this.titleIndex = (this.titleIndex + 1) % this.titles.length;
     return wrapper;
   }
 });
