@@ -32,9 +32,11 @@ module.exports = NodeHelper.create({
             titles.push(response.items[i].snippet.title);
           }
 
+          // Log the titles to the console if debug is enabled.
           if (debug) {
-            console.log("Video Titles:", titles);
+            console.log("Titles: " + titles);
           }
 
           // Send the video titles back to the module.
-          this.sendSocketNotification("VIDEO_TITLES
+          this.sendSocketNotification("VIDEO_TITLES", { titles: titles });
+        }.bind(this));
