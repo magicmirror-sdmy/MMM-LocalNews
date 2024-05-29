@@ -1,54 +1,90 @@
 Module.register("MMM-LocalNews", {
-  css: [    "MMM-LocalNews.css"  ],
-  // Default module config.
+  css: ["MMM-LocalNews.css"],
+
   defaults: {
     apiKey: "",
-    channelIds: [], // array of channel ids
-    displayTime: 5000, // Default display time is 5 seconds
-    updateInterval: 10 * 60 * 1000, // Default update interval is 10 minutes
-    debug: false, // Default value for debug is false
-    excludedTitles: [] // array of keywords to exclude
+    channelIds: [],
+    displayTime: 5000,
+    updateInterval: 10 * 60 * 1000,
+    debug: false,
+    excludedTitles: []
   },
 
-  // Override start method.
   start: function() {
     this.sendSocketNotification("GET_VIDEO_TITLES", this.config);
-
     var self = this;
+    this.titleIndex = 0; // Initialize title index
+    this.updateIntervalCount = 0; // Initialize update interval count
     this.intervalId = setInterval(function() {
       self.sendSocketNotification("GET_VIDEO_TITLES", self.config);
     }, this.config.updateInterval);
   },
 
-  // Handle the VIDEO_TITLES socket notification.
   socketNotificationReceived: function(notification, payload) {
     if (notification === "VIDEO_TITLES") {
       clearInterval(this.intervalId);
 
-      // Filter out titles containing keywords in `excludedTitles`
-      this.titles = payload.titles.filter(title => !this.config.excludedTitles.some(excluded => title.toLowerCase().includes(excluded.toLowerCase())));
+      this.videos = payload.videos.filter(video => !this.config.excludedTitles.some(excluded => video.title.toLowerCase().includes(excluded.toLowerCase())));
+      if (this.videos.length === 0) {
+        this.currentVideo = { title: "No relevant news found.", channelTitle: "" };
+      } else {
+        this.titleIndex = 0; // Reset title index when new data arrives
+        this.showNextVideo();
+      }
       this.updateDom();
 
-      this.showNextTitle();
+      var self = this;
+      this.intervalId = setInterval(function() {
+        self.sendSocketNotification("GET_VIDEO_TITLES", self.config);
+      }, this.config.updateInterval);
     }
   },
 
-  // Override dom generator.
   getDom: function() {
     var wrapper = document.createElement("div");
-    wrapper.innerHTML = this.currentTitle || "Loading...";
+    wrapper.className = "MMM-LocalNews";
+
+    if (this.currentVideo) {
+      var newsDiv = document.createElement("div");
+      newsDiv.className = "newsfeed";
+
+      var sourceDiv = document.createElement("div");
+      sourceDiv.className = "newsfeed-source dimmed small";
+      sourceDiv.innerHTML = this.currentVideo.channelTitle;
+      newsDiv.appendChild(sourceDiv);
+
+      var titleDiv = document.createElement("div");
+      titleDiv.className = "newsfeed-title bright medium";
+      titleDiv.innerHTML = this.currentVideo.title;
+      newsDiv.appendChild(titleDiv);
+
+      wrapper.appendChild(newsDiv);
+    } else {
+      wrapper.innerHTML = "Loading...";
+    }
+
     return wrapper;
   },
 
-  // Show the next title in the list.
-  showNextTitle: function() {
-    if (this.titles.length === 0) {
+  showNextVideo: function() {
+    var self = this;
+
+    if (this.videos.length === 0) {
+      this.currentVideo = { title: "No more titles.", channelTitle: "" };
+      this.updateDom();
       return;
     }
 
-    this.currentTitle = this.titles.shift();
+    this.currentVideo = this.videos[this.titleIndex];
     this.updateDom();
 
-    setTimeout(this.showNextTitle.bind(this), this.config.displayTime);
+    this.titleIndex++;
+    if (this.titleIndex >= this.videos.length) {
+      this.titleIndex = 0;
+    }
+
+    setTimeout(function() {
+      self.showNextVideo();
+    }, this.config.displayTime);
   }
 });
