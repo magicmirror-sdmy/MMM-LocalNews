@@ -13,7 +13,7 @@ run npm install in the MMM-LocalNews directory.
 ```
 Add you config in the config.js
 ``` 
-    {{
+    {
   module: "MMM-LocalNews",
   position: "top_right",
   config: {
