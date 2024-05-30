@@ -1,9 +1,20 @@
 {
   "name": "MMM-LocalNews",
-  "version": "0.0.1",
-  "description": "A MagicMirrorB2 module for displaying local news",
-  "author": "sdmy",
+  "version": "1.0.0",
+  "description": "A MagicMirror² module to display news titles from specified YouTube channels",
+  "main": "MMM-LocalNews.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "magicmirror",
+    "module",
+    "youtube",
+    "local news"
+  ],
+  "author": "Dr. Sudhamoy",
+  "license": "MIT",
   "dependencies": {
-    "node-helper": "0.1.1"
+    "axios": "^0.21.1"
   }
 }
