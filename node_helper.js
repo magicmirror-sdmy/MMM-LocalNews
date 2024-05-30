@@ -1,13 +1,15 @@
- var NodeHelper = require("node_helper");
-var https = require("https");
+const NodeHelper = require("node_helper");
+const https = require("https");
+const fs = require("fs");
+const path = require("path");
 
 module.exports = NodeHelper.create({
   apiKey: null,
   channelIds: null,
   updateInterval: null,
   debug: false,
-  intervalId: null,
-  cache: {},
+  cacheFile: "localNewsCache.json",
+  cacheExpiry: 60 * 60 * 1000, // 1 hour in milliseconds
 
   start: function() {
     console.log("Starting node helper for: " + this.name);
@@ -15,96 +17,101 @@ module.exports = NodeHelper.create({
 
   socketNotificationReceived: function(notification, payload) {
     if (notification === "GET_VIDEO_TITLES") {
-      clearInterval(this.intervalId);
       this.apiKey = payload.apiKey;
       this.channelIds = payload.channelIds;
       this.updateInterval = payload.updateInterval;
       this.debug = payload.debug;
-      this.getData();
+      this.cacheFile = path.resolve(__dirname, this.cacheFile);
+      this.cacheExpiry = payload.cacheExpiry || this.cacheExpiry;
+
+      // Check if cache file exists and is still valid
+      if (fs.existsSync(this.cacheFile)) {
+        const stats = fs.statSync(this.cacheFile);
+        const now = new Date().getTime();
+        const cacheAge = now - stats.mtimeMs;
+
+        if (cacheAge < this.cacheExpiry) {
+          console.log("Using cached data");
+          const cachedData = fs.readFileSync(this.cacheFile, "utf8");
+          const videos = JSON.parse(cachedData);
+          this.sendSocketNotification("VIDEO_TITLES", { videos });
+          return;
+        }
+      }
+
+      // If cache is invalid or does not exist, fetch new data
+      this.fetchAndUpdateCache();
     }
   },
 
-  getData: function() {
-    if (!this.channelIds) {
-      return;
-    }
+  fetchAndUpdateCache: function() {
+    const self = this;
+    const allVideos = [];
 
-    var self = this;
-    this.channelIds.forEach(function(channelId) {
-      var cacheKey = `channel_${channelId}`;
-      var cachedData = self.cache[cacheKey];
+    const fetchPromises = this.channelIds.map(channelId => {
+      return new Promise((resolve, reject) => {
+        const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=50&order=date&type=video&key=${self.apiKey}`;
 
-      // Check if the data is in cache and still valid
-      if (cachedData && (Date.now() - cachedData.timestamp < self.updateInterval)) {
-        console.log(`Using cached data for channel: ${channelId}`);
-        self.sendSocketNotification("VIDEO_TITLES", cachedData.data);
-        return;
-      }
+        https.get(url, function(res) {
+          let body = "";
 
-      var url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=50&order=date&type=video&key=${self.apiKey}`;
+          res.on("data", function(chunk) {
+            body += chunk;
+          });
 
-      https.get(url, function(res) {
-        var body = "";
-
-        res.on("data", function(chunk) {
-          body += chunk;
-        });
-
-        res.on("end", function() {
-          try {
-            var response = JSON.parse(body);
-            if (response.error) {
-              console.error('Error response from YouTube API:', response);
-              if (response.error.code === 403) {
-                console.error('Quota exceeded. Stopping further requests.');
-                clearInterval(self.intervalId);
+          res.on("end", function() {
+            try {
+              const response = JSON.parse(body);
+              if (response.error) {
+                console.error("Error response from YouTube API:", response);
+                if (response.error.code === 403) {
+                  console.error("Quota exceeded. Stopping further requests.");
+                }
+                reject(response.error);
+                return;
               }
-              return;
-            }
 
-            var videos = [];
-            if (response.items && Array.isArray(response.items)) {
-              for (var i = 0; i < response.items.length; i++) {
-                videos.push({
-                  title: response.items[i].snippet.title,
-                  channelTitle: response.items[i].snippet.channelTitle
-                });
+              const videos = response.items.map(item => ({
+                title: item.snippet.title,
+                channelTitle: item.snippet.channelTitle
+              }));
+
+              if (self.debug) {
+                console.log("Fetched videos:", videos);
               }
-            } else {
-              console.error('Unexpected response format:', response);
+
+              allVideos.push(...videos);
+              resolve();
+            } catch (error) {
+              console.error("Error processing response:", error);
+              reject(error);
             }
+          });
 
-            if (self.debug) {
-              console.log("Videos: ", videos);
-            }
-
-            var payload = {
-              videos: videos,
-              channelId: channelId
-            };
-
-            // Cache the data
-            self.cache[cacheKey] = {
-              timestamp: Date.now(),
-              data: payload
-            };
-
-            self.sendSocketNotification("VIDEO_TITLES", payload);
-          } catch (error) {
-            console.error("Error processing response:", error);
-          }
+          res.on("error", function(e) {
+            console.error("HTTP request error:", e);
+            reject(e);
+          });
+        }).on("error", function(e) {
+          console.error("HTTPS request error:", e);
+          reject(e);
         });
-
-        res.on("error", function(e) {
-          console.error("HTTP request error:", e);
-        });
-      }).on("error", function(e) {
-        console.error("HTTPS request error:", e);
       });
     });
 
-    this.intervalId = setTimeout(function() {
-      self.getData();
-    }, this.updateInterval);
+    Promise.all(fetchPromises)
+      .then(() => {
+        fs.writeFileSync(self.cacheFile, JSON.stringify(allVideos), "utf8");
+        self.sendSocketNotification("VIDEO_TITLES", { videos: allVideos });
+      })
+      .catch(error => {
+        console.error("Error fetching video titles:", error);
+      });
+  },
+
+  log: function(message) {
+    if (this.debug) {
+      console.log("MMM-LocalNews: " + message);
+    }
   }
 });
