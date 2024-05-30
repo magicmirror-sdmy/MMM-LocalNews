@@ -5,39 +5,49 @@ Module.register("MMM-LocalNews", {
     apiKey: "",
     channelIds: [],
     displayTime: 5000,
-    updateInterval: 10 * 60 * 1000,
+    updateInterval: 10 * 60 * 1000, // 10 minutes in milliseconds
     debug: false,
-    excludedTitles: []
+    excludedTitles: [],
+    cacheFile: "localNewsCache.json",
+    cacheExpiry: 60 * 60 * 1000 // 1 hour in milliseconds
   },
 
   start: function() {
+    this.log("Starting module");
+    this.titleIndex = 0;
+    this.videos = [];
+    this.currentVideo = null;
+    this.fetchAndUpdateCache();
+    this.scheduleNextUpdate();
+  },
+
+  fetchAndUpdateCache: function() {
+    this.log("Fetching new data from API");
     this.sendSocketNotification("GET_VIDEO_TITLES", this.config);
-    var self = this;
-    this.titleIndex = 0; // Initialize title index
-    this.updateIntervalCount = 0; // Initialize update interval count
-    this.intervalId = setInterval(function() {
-      self.sendSocketNotification("GET_VIDEO_TITLES", self.config);
-    }, this.config.updateInterval);
   },
 
   socketNotificationReceived: function(notification, payload) {
     if (notification === "VIDEO_TITLES") {
-      clearInterval(this.intervalId);
-
-      this.videos = payload.videos.filter(video => !this.config.excludedTitles.some(excluded => video.title.toLowerCase().includes(excluded.toLowerCase())));
-      if (this.videos.length === 0) {
-        this.currentVideo = { title: "No relevant news found.", channelTitle: "" };
-      } else {
-        this.titleIndex = 0; // Reset title index when new data arrives
-        this.showNextVideo();
-      }
-      this.updateDom();
-
-      var self = this;
-      this.intervalId = setInterval(function() {
-        self.sendSocketNotification("GET_VIDEO_TITLES", self.config);
-      }, this.config.updateInterval);
+      this.videos = payload.videos;
+      this.filterAndShowVideos();
     }
+  },
+
+  filterAndShowVideos: function() {
+    this.videos = this.videos.filter(video =>
+      !this.config.excludedTitles.some(excluded =>
+        video.title.toLowerCase().includes(excluded.toLowerCase())
+      )
+    );
+
+    if (this.videos.length === 0) {
+      this.currentVideo = { title: "No relevant news found.", channelTitle: "" };
+    } else {
+      this.titleIndex = 0;
+      this.showNextVideo();
+    }
+
+    this.updateDom();
   },
 
   getDom: function() {
@@ -86,5 +96,18 @@ Module.register("MMM-LocalNews", {
     setTimeout(function() {
       self.showNextVideo();
     }, this.config.displayTime);
+  },
+
+  scheduleNextUpdate: function() {
+    var self = this;
+    setInterval(function() {
+      self.fetchAndUpdateCache();
+    }, this.config.cacheExpiry);
+  },
+
+  log: function(message) {
+    if (this.config.debug) {
+      Log.info("MMM-LocalNews: " + message);
+    }
   }
 });
