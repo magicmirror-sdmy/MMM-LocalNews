@@ -13,19 +13,21 @@ run npm install in the MMM-LocalNews directory.
 ```
 Add you config in the config.js
 ``` 
-    {
+    {{
   module: "MMM-LocalNews",
-   config: {
-    apiKey: "YOUR_API_KEY",
-    urls: [
-        "https://www.youtube.com/channel/UC8butISFwT-Wl7EV0hUK0BQ",
-        "https://www.youtube.com/channel/UCQG5SdM5j5x5Ln1lOf2QQFg"
-          ],
-    hours: 24,
-    displayTime: 5000,
-    debug: false
-              }
-    },
+  position: "top_right",
+  config: {
+    apiKey: "YOUR_YOUTUBE_API_KEY",
+    channelIds: ["UC_x5XG1OV2P6uZZ5FSM9Ttw", "UCYfdidRxbB8Qhf0Nx7ioOYw"],
+    displayTime: 5000, // Display each news title for 5 seconds
+    updateInterval: 10 * 60 * 1000, // Update every 10 minutes
+    debug: true, // Enable debug mode
+    excludedTitles: ["live", "breaking news"], // Exclude titles containing "live" or "breaking news"
+    cacheFile: "localNewsCache.json", // Cache file for storing fetched data
+    cacheExpiry: 60 * 60 * 1000 // Cache expiry time: 1 hour
+  }
+}
+
 
 ```
 
