@@ -41,7 +41,7 @@ Add you config in the config.js
 ```
 
 ## Obtaining an api key
-- Go to the Google Cloud Console.
+- Go to the [Google Cloud Console](https://console.cloud.google.com/).
 - Create a new project or select an existing project.
 - Navigate to the "APIs & Services" > "Dashboard".
 - Click "Enable APIs and Services".
