@@ -73,7 +73,8 @@ module.exports = NodeHelper.create({
 
               const videos = response.items.map(item => ({
                 title: item.snippet.title,
-                channelTitle: item.snippet.channelTitle
+                channelTitle: item.snippet.channelTitle,
+                publishedAt: item.snippet.publishedAt
               }));
 
               if (self.debug) {
