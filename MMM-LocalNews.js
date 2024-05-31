@@ -4,7 +4,7 @@ Module.register("MMM-LocalNews", {
   defaults: {
     apiKey: "",
     channelIds: [],
-    displayTime: 5000,
+    displayTime: 10000, // 10 seconds in milliseconds
     updateInterval: 10 * 60 * 1000, // 10 minutes in milliseconds
     debug: false,
     excludedTitles: [],
@@ -17,6 +17,7 @@ Module.register("MMM-LocalNews", {
     this.titleIndex = 0;
     this.videos = [];
     this.currentVideo = null;
+    this.isDisplayingVideo = false;
     this.fetchAndUpdateCache();
     this.scheduleNextUpdate();
   },
@@ -34,11 +35,16 @@ Module.register("MMM-LocalNews", {
   },
 
   filterAndShowVideos: function() {
-    this.videos = this.videos.filter(video =>
-      !this.config.excludedTitles.some(excluded =>
-        video.title.toLowerCase().includes(excluded.toLowerCase())
-      )
-    );
+    const now = new Date();
+    const sixHoursAgo = now.getTime() - 6 * 60 * 60 * 1000;
+
+    this.videos = this.videos.filter(video => {
+      const videoTime = new Date(video.publishedAt).getTime();
+      return videoTime >= sixHoursAgo &&
+        !this.config.excludedTitles.some(excluded =>
+          video.title.toLowerCase().includes(excluded.toLowerCase())
+        );
+    });
 
     if (this.videos.length === 0) {
       this.currentVideo = { title: "No relevant news found.", channelTitle: "" };
@@ -68,6 +74,11 @@ Module.register("MMM-LocalNews", {
       titleDiv.innerHTML = this.currentVideo.title;
       newsDiv.appendChild(titleDiv);
 
+      var timeDiv = document.createElement("div");
+      timeDiv.className = "newsfeed-time small dimmed";
+      timeDiv.innerHTML = this.formatTimeAgo(this.currentVideo.publishedAt);
+      newsDiv.appendChild(timeDiv);
+
       wrapper.appendChild(newsDiv);
     } else {
       wrapper.innerHTML = "Loading...";
@@ -79,9 +90,17 @@ Module.register("MMM-LocalNews", {
   showNextVideo: function() {
     var self = this;
 
+    if (this.isDisplayingVideo) {
+      this.log("Skipping showNextVideo call to avoid duplicate execution.");
+      return;
+    }
+
+    this.isDisplayingVideo = true;
+
     if (this.videos.length === 0) {
       this.currentVideo = { title: "No more titles.", channelTitle: "" };
       this.updateDom();
+      this.isDisplayingVideo = false;
       return;
     }
 
@@ -94,6 +113,7 @@ Module.register("MMM-LocalNews", {
     }
 
     setTimeout(function() {
+      self.isDisplayingVideo = false;
       self.showNextVideo();
     }, this.config.displayTime);
   },
@@ -102,7 +122,23 @@ Module.register("MMM-LocalNews", {
     var self = this;
     setInterval(function() {
       self.fetchAndUpdateCache();
-    }, this.config.cacheExpiry);
+    }, this.config.updateInterval);
+  },
+
+  formatTimeAgo: function(dateString) {
+    const now = new Date();
+    const videoDate = new Date(dateString);
+    const diffMs = now - videoDate;
+
+    const minutes = Math.floor(diffMs / (1000 * 60));
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+
+    if (hours > 0) {
+      return `${hours} hours ${remainingMinutes} minutes ago`;
+    } else {
+      return `${minutes} minutes ago`;
+    }
   },
 
   log: function(message) {
