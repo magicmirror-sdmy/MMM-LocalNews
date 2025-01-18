@@ -16,7 +16,7 @@ run npm install in the MMM-LocalNews directory.
 
 
 ``` 
-    git clone https://github.com/sdmydbr9/MMM-LocalNews.git
+    git clone https://github.com/magicmirror-sdmy/MMM-LocalNews.git
     cd MMM-LocalNews
     npm install
 ```
